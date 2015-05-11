@@ -26,7 +26,7 @@
       template: "instances.json"
       template_parameters:
         SecondOctect: "{{SecondOctect}}"
-        VpcId: "{{VpcId}"
+        VpcId: "{{VpcId}}"
         PublicRouteTable: "{{PublicRouteTable}}"
         AmiId: "{{AmiId}}"
         Ec2InstanceType: "{{Ec2InstanceType}}"

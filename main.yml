@@ -7,7 +7,7 @@
   vars:
     stackPrefix: docker
     EC2KeyPair: docker
-    SecondOctect: "99"
+    SecondOctect: "101"
     AmiId: "ami-7df0bd4d"
     Ec2InstanceType: "m3.large"
     VpcId: "vpc-f479f891"

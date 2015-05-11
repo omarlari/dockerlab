@@ -9,7 +9,7 @@
     EC2KeyPair: docker
     SecondOctect: "101"
     AmiId: "ami-7df0bd4d"
-    Ec2InstanceType: "m3.large"
+    Ec2InstanceType: "t1.micro"
     VpcId: "vpc-f479f891"
     PublicRouteTable: "rtb-8166ede4"
 

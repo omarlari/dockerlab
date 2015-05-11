@@ -10,8 +10,8 @@
     SecondOctect: "99"
     AmiId: "ami-7df0bd4d"
     Ec2InstanceType: "m3.large"
-    VpcId: ""
-    PublicRouteTable: ""
+    VpcId: "vpc-f479f891"
+    PublicRouteTable: "rtb-8166ede4"
 
   tasks:
 

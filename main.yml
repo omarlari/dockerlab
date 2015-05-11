@@ -1,0 +1,35 @@
+---
+- name: Provision docker lab
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    stackPrefix: docker
+    EC2KeyPair: docker
+    SecondOctect: "99"
+    AmiId: "ami-7df0bd4d"
+    Ec2InstanceType: "m3.large"
+    VpcId: ""
+    PublicRouteTable: ""
+
+  tasks:
+
+  - name: Provision subnet security group and instances
+    cloudformation:
+      aws_access_key: "AKIAIS22QLAAZWXLRDLQ"
+      aws_secret_key: "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"
+      stack_name: "{{stackPrefix}}-instances"
+      state: "present"
+      disable_rollback: true
+      region: "us-west-2"
+      template: "instances.json"
+      template_parameters:
+        SecondOctect: "{{SecondOctect}}"
+        VpcId: "{{VpcId}"
+        PublicRouteTable: "{{PublicRouteTable}}"
+        AmiId: "{{AmiId}}"
+        Ec2InstanceType: "{{Ec2InstanceType}}"
+      tags:
+        Stack: "docker-lab"
+    register: dockerInstances

@@ -1,0 +1,259 @@
+    {
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "Template to make VPC with private and public subnet",
+    "Parameters": {
+        "VpcId": {
+            "Description": "VpcId",
+            "Type": "String",
+            "Default": "",
+            "ConstraintDescription": ""
+        },
+        "SecondOctect": {
+            "Description": "Enter the instance type for the BigIpInstances",
+            "Type": "String",
+            "Default": "m3.xlarge",
+            "ConstraintDescription": "Must be a supported instance type for the selected AMI"
+        },
+        "PublicRouteTable": {
+            "Description": "Second Octect of the VPC CIDR block",
+            "Type": "String",
+            "Default": "",
+            "ConstraintDescription": "Public Route Table Id"
+        },
+        "AmiId": {
+            "Description": "Enter the AMI Id for the BigIp Instances",
+            "Type": "String",
+            "Default": "ami-e9b4fdd9",
+            "ConstraintDescription": "Use valid AMI ID for the region you are deploying in"
+        },
+        "Ec2InstanceType": {
+            "Description": "Enter the instance type for the BigIpInstances",
+            "Type": "String",
+            "Default": "m3.xlarge",
+            "ConstraintDescription": "Must be a supported instance type for the selected AMI"
+        }
+    },
+    "Resources": {
+        "PublicSubnetAza": {
+            "Type": "AWS::EC2::Subnet",
+            "Properties": {
+                "AvailabilityZone": "us-west-2a",
+                "VpcId": {
+                    "Ref": "VpcId"
+                },
+                "CidrBlock": {
+                    "Fn::Join": [
+                        "",
+                        [
+                            "10.",
+                            {
+                                "Ref": "SecondOctect"
+                            },
+                            ".0",
+                            ".0",
+                            "/24"
+                        ]
+                    ]
+                },
+                "Tags": [
+                    {
+                        "Key": "Application",
+                        "Value": {
+                            "Ref": "AWS::StackName"
+                        }
+                    },
+                    {
+                        "Key": "Network",
+                        "Value": "Public"
+                    }
+                ]
+            }
+        },
+        "PublicSubnetRouteTableAssociation": {
+            "Type": "AWS::EC2::SubnetRouteTableAssociation",
+            "Properties": {
+                "SubnetId": {
+                    "Ref": "PublicSubnetAza"
+                },
+                "RouteTableId": {
+                    "Ref": "PublicRouteTable"
+                }
+            }
+        },  
+        "DockerSecurityGroup": {
+            "Type": "AWS::EC2::SecurityGroup",
+            "Properties": {
+                "GroupDescription": "Enable 22, 80 and 443",
+                "SecurityGroupIngress": [
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "22",
+                        "ToPort": "22",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "80",
+                        "ToPort": "80",
+                        "CidrIp": "0.0.0.0/0"
+                    },
+                    {
+                        "IpProtocol": "tcp",
+                        "FromPort": "443",
+                        "ToPort": "443",
+                        "CidrIp": "0.0.0.0/0"
+                    }
+                ],
+                "VpcId": {
+                    "Ref": "VpcId"
+                }
+            }
+        },
+        "DockerInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstanceType"
+                },
+                "KeyName": "docker",
+                "NetworkInterfaces": [
+                    {
+                        "Description": "Management Network IP Address for AvailabilityZone B",
+                        "GroupSet": [
+                            {
+                                "Ref": "DockerSecurityGroup"
+                            }
+                        ],
+                        "DeviceIndex": "0",
+                        "AssociatePublicIpAddress": "True",
+                        "PrivateIpAddress": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "10.",
+                                    {
+                                        "Ref": "SecondOctect"
+                                    },
+                                    ".0",
+                                    ".254"
+                                ]
+                            ]
+                        },
+                        "SubnetId": {
+                            "Ref": "PublicSubnetAza"
+                        }
+                    }
+                ]
+            }
+        },
+        "OpenshiftInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstanceType"
+                },
+                "KeyName": "docker",
+                "NetworkInterfaces": [
+                    {
+                        "Description": "Management Network IP Address for AvailabilityZone B",
+                        "GroupSet": [
+                            {
+                                "Ref": "DockerSecurityGroup"
+                            }
+                        ],
+                        "DeviceIndex": "0",
+                        "AssociatePublicIpAddress": "True",
+                        "PrivateIpAddress": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "10.",
+                                    {
+                                        "Ref": "SecondOctect"
+                                    },
+                                    ".0",
+                                    ".253"
+                                ]
+                            ]
+                        },
+                        "SubnetId": {
+                            "Ref": "PublicSubnetAza"
+                        }
+                    }
+                ]
+            }
+        },
+        "KubernetesInstance": {
+            "Type": "AWS::EC2::Instance",
+            "Properties": {
+                "ImageId": {
+                    "Ref": "AmiId"
+                },
+                "InstanceType": {
+                    "Ref": "Ec2InstanceType"
+                },
+                "KeyName": "docker",
+                "NetworkInterfaces": [
+                    {
+                        "Description": "Management Network IP Address for AvailabilityZone B",
+                        "GroupSet": [
+                            {
+                                "Ref": "DockerSecurityGroup"
+                            }
+                        ],
+                        "DeviceIndex": "0",
+                        "AssociatePublicIpAddress": "True",
+                        "PrivateIpAddress": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "10.",
+                                    {
+                                        "Ref": "SecondOctect"
+                                    },
+                                    ".0",
+                                    ".252"
+                                ]
+                            ]
+                        },
+                        "SubnetId": {
+                            "Ref": "PublicSubnetAza"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "Outputs": {
+        "DockerInstancePublicIp": {
+            "Value": {
+                "Fn::GetAtt": [
+                "DockerInstance", "PublicIp"
+                ]
+            },
+            "Description": "Public IP address for Docker Instance"
+        },
+        "OpenshiftInstancePublicIp": {
+            "Value": {
+                "Fn::GetAtt": [
+                "OpenshiftInstance", "PublicIp"
+                ]
+            },
+            "Description": "Public IP address for Openshift Instance"
+        },
+         "KubernetesInstancePublicIp": {
+            "Value": {
+                "Fn::GetAtt": [
+                "KubernetesInstance", "PublicIp"
+                ]
+            },
+            "Description": "Public IP address for Openshift Instance"
+        }
+    }
+}

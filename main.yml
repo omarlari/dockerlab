@@ -17,8 +17,6 @@
 
   - name: Provision subnet security group and instances
     cloudformation:
-      aws_access_key: "AKIAIS22QLAAZWXLRDLQ"
-      aws_secret_key: "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"
       stack_name: "{{stackPrefix}}-instances"
       state: "present"
       disable_rollback: true
